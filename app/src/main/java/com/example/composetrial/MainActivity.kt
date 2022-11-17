@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -40,11 +41,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val scroll = rememberScrollState()
-            Column (modifier = Modifier.verticalScroll(scroll)){
-                for (i in 1..50){
+            LazyColumn (){
+                items(500){
                     Text(
-                        text = "Item number $i",
+                        text = "Item number $it",
                         fontSize= 20.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
@@ -53,6 +53,7 @@ class MainActivity : ComponentActivity() {
                             .padding(vertical = 20.dp)
                     )
                 }
+
             }
         }
     }
