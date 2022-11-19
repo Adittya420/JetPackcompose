@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -28,6 +29,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintSet
+import androidx.constraintlayout.compose.Dimension
 import java.util.Random
 import kotlin.random.Random.Default.nextFloat
 
@@ -41,18 +45,41 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LazyColumn (){
-                items(500){
-                    Text(
-                        text = "Item number $it",
-                        fontSize= 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 20.dp)
-                    )
+                val constraints = ConstraintSet {
+                    val greenBox = createRefFor("GreenBox")
+                    val redBox = createRefFor("RedBox")
+                    val yellowBox = createRefFor("YellowBox")
+
+                    constrain(greenBox){
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        width = Dimension.value(200.dp)
+                        height = Dimension.value(200.dp)
+                    }
+
+                    constrain(redBox){
+                        top.linkTo(parent.top)
+                        start.linkTo(greenBox.end)
+                        width = Dimension.value(200.dp)
+                        height = Dimension.value(200.dp)
+                    }
+
+                    constrain(yellowBox){
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        width = Dimension.fillToConstraints
+                        height = Dimension.fillToConstraints
+                    }
+
                 }
+            ConstraintLayout(constraints, modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier
+                    .background(Color.Green)
+                    .layoutId("GreenBox"))
+
+                Box(modifier = Modifier.
+                      background(Color.Red)
+                    .layoutId("RedBox"))
 
             }
         }
