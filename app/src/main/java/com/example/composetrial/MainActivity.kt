@@ -3,6 +3,10 @@ package com.example.composetrial
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.layout.*
@@ -45,6 +49,30 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
+            var sizecon by remember {
+                mutableStateOf(200.dp)
+            }
+            val size by animateDpAsState(targetValue = sizecon ,
+            spring(
+                Spring.DampingRatioLowBouncy
+            )
+            )
+
+
+            Box(
+                modifier = Modifier
+                    .size(size)
+                    .background(Color.Red).fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(onClick = { /*TODO*/
+                sizecon+=50.dp}) {
+                    Text(text = "Click Me")
+                }
+            }
+
+            
             }
         }
     }
