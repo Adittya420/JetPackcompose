@@ -1,3 +1,1 @@
-# JetPackcompose
-Learning Jetpack compose with Philipp Lackner
-Here I have learned different types of animation.
+I learned how to create a custom circular progress bar in Android studio using Jetpack compose.
