@@ -50,62 +50,123 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Box (
-                contentAlignment = Alignment.Center,
+            Surface(
+                color = Color(0xFF101010),
                 modifier = Modifier.fillMaxSize()
-                    ){
-                CircularPropagation(percentage = 0.9f , number = 100)
-            }
-
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    Timer(
+                        totalTime = 100L * 1000L,
+                        handleColor = Color.Green,
+                        inactiveBarColor = Color.DarkGray,
+                        activeBarColor = Color(0xFF37B900),
+                        modifier = Modifier.size(200.dp)
+                    )
+                }
             }
         }
     }
+}
 
 @Composable
-fun CircularPropagation(
-    percentage :Float,
-    number:Int,
-    fontsize : TextUnit = 28.sp,
-    radius: Dp = 50.dp,
-    color:Color = Color.Green,
-    strokeWith: Dp = 8.dp,
-    animDuration: Int = 1000,
-    animDelay : Int = 0
-    ){
-var animPlayed by remember {
-    mutableStateOf(false)
-}
-    val currper = animateFloatAsState(targetValue = if(animPlayed) percentage else 0f, animationSpec = tween(
-        durationMillis = animDuration,
-        delayMillis = animDelay
-    ))
-    LaunchedEffect(key1 = true){
-        animPlayed = true
+fun Timer(
+    totalTime: Long,
+    handleColor: Color,
+    inactiveBarColor: Color,
+    activeBarColor: Color,
+    modifier: Modifier = Modifier,
+    initialValue: Float = 1f,
+    strokeWidth: Dp = 5.dp
+) {
+    var size by remember {
+        mutableStateOf(IntSize.Zero)
     }
-    Box (
+    var value by remember {
+        mutableStateOf(initialValue)
+    }
+    var currentTime by remember {
+        mutableStateOf(totalTime)
+    }
+    var isTimerRunning by remember {
+        mutableStateOf(false)
+    }
+    LaunchedEffect(key1 = currentTime, key2 = isTimerRunning) {
+        if(currentTime > 0 && isTimerRunning) {
+            delay(100L)
+            currentTime -= 100L
+            value = currentTime / totalTime.toFloat()
+        }
+    }
+    Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(radius * 2f)
-            ){
-        Canvas(modifier = Modifier.size(radius*2f) ){
+        modifier = modifier
+            .onSizeChanged {
+                size = it
+            }
+    ) {
+        Canvas(modifier = modifier) {
             drawArc(
-                color = Color.Green,
-                -90f,
-                360 * currper.value,
+                color = inactiveBarColor,
+                startAngle = -215f,
+                sweepAngle = 250f,
                 useCenter = false,
-                style = Stroke(strokeWith.toPx(),cap = StrokeCap.Round),
+                size = Size(size.width.toFloat(), size.height.toFloat()),
+                style = Stroke(strokeWidth.toPx(), cap = StrokeCap.Round)
             )
-
+            drawArc(
+                color = activeBarColor,
+                startAngle = -215f,
+                sweepAngle = 250f * value,
+                useCenter = false,
+                size = Size(size.width.toFloat(), size.height.toFloat()),
+                style = Stroke(strokeWidth.toPx(), cap = StrokeCap.Round)
+            )
+            val center = Offset(size.width / 2f, size.height / 2f)
+            val beta = (250f * value + 145f) * (PI / 180f).toFloat()
+            val r = size.width / 2f
+            val a = cos(beta) * r
+            val b = sin(beta) * r
+            drawPoints(
+                listOf(Offset(center.x + a, center.y + b)),
+                pointMode = PointMode.Points,
+                color = handleColor,
+                strokeWidth = (strokeWidth * 3f).toPx(),
+                cap = StrokeCap.Round
+            )
         }
         Text(
-            text = (currper.value*number).toInt().toString(),
-            color=Color.Red,
-            fontSize = fontsize
+            text = (currentTime / 1000L).toString(),
+            fontSize = 44.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
         )
-
+        Button(
+            onClick = {
+                if(currentTime <= 0L) {
+                    currentTime = totalTime
+                    isTimerRunning = true
+                } else {
+                    isTimerRunning = !isTimerRunning
+                }
+            },
+            modifier = Modifier.align(Alignment.BottomCenter),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = if (!isTimerRunning || currentTime <= 0L) {
+                    Color.Green
+                } else {
+                    Color.Red
+                }
+            )
+        ) {
+            Text(
+                text = if (isTimerRunning && currentTime >= 0L) "Stop"
+                else if (!isTimerRunning && currentTime >= 0L) "Start"
+                else "Restart"
+            )
+        }
     }
-   
-
-
 }
 
 
